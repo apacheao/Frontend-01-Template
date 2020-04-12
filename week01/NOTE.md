@@ -9,8 +9,8 @@
 
 2. 在 **V10** 版本的 **ECMA** 中：我们把 **ECMA** 类型（Type）分为两类
 
-1. 语言类型（Language Types）
-2. 规格类型/内部类型（Specification Types）
+- 语言类型（Language Types）
+- 规格类型/内部类型（Specification Types）
 
 语言类型有**七个**，包含 **String, Number, Boolean, undefined, Null, Object, and Symbol.**
 规格类型有**七个**，包含 **Reference, List, Completion, Property Descriptor, Lexical Environment, Environment Record, and Data Block**. 
