@@ -12,11 +12,11 @@
 - 语言类型（Language Types）
 - 规格类型/内部类型（Specification Types）
 
-语言类型有**七个**，包含 **String, Number, Boolean, undefined, Null, Object, and Symbol.**
+语言类型有**七个**，包含 **String, Number, Boolean, undefined, Null, Object, and Symbol.**  
 规格类型有**七个**，包含 **Reference, List, Completion, Property Descriptor, Lexical Environment, Environment Record, and Data Block**. 
 
-名词解释：
-规范类型值可用于描述ECMAScript表达式评估的中间结果，但此类值不能存储为对象的属性或ECMAScript语言变量的值。
+**参考名词**：  
+规格类型: 规范类型值可用于描述ECMAScript表达式评估的中间结果，但此类值不能存储为对象的属性或ECMAScript语言变量的值。
 
 参考：
 [ecma-262-V10.0](http://www.ecma-international.org/ecma-262/10.0/index.html#sec-ecmascript-data-types-and-values)
