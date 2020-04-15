@@ -3,6 +3,8 @@
 (1) 把课上老师的脑图里的这些实体补全？
 
 (2) 你能不能在 ECMA 中找到所有的类型（Type）？
+
+(3) week-01 第一周总结
 ```
 
 1. [所有entity实体](https://github.com/apacheao/Frontend-01-Template/blob/master/week01/AllEntityCollection)
@@ -20,3 +22,6 @@
 
 参考：
 [ecma-262-V10.0](http://www.ecma-international.org/ecma-262/10.0/index.html#sec-ecmascript-data-types-and-values)
+
+一周总结：
+[总结](https://github.com/apacheao/blog/issues/3)
