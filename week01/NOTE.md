@@ -23,5 +23,5 @@
 参考：
 [ecma-262-V10.0](http://www.ecma-international.org/ecma-262/10.0/index.html#sec-ecmascript-data-types-and-values)
 
-一周总结：
-[总结](https://github.com/apacheao/blog/issues/3)
+**一周总结**：
+[week-01总结](https://github.com/apacheao/blog/issues/3)
