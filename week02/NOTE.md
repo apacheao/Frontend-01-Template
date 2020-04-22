@@ -9,19 +9,17 @@
 (4) week-02 第二周总结
 ```
 
-1). 
+1. [解答过程](https://github.com/apacheao/Frontend-01-Template/blob/master/week02/NumericLiteral.md) 
 ```
 (0|[1-9][0-9])|(.[0-9])|[eE]|([+-]?[0-9])|([ob|oB][01])|([0o|0O][0-9])|([0x|0X][0-9a-fA-F]) 
 ```
-[第一题的解答过程](https://github.com/apacheao/Frontend-01-Template/blob/master/week02/NumericLiteral.md)
 
-2). [第二题的解答过程](https://github.com/apacheao/Frontend-01-Template/blob/master/week02/encodeUtf8.js)
+2. [解答过程](https://github.com/apacheao/Frontend-01-Template/blob/master/week02/encodeUtf8.js)
 
-3). 
+3. [解答过程](https://github.com/apacheao/Frontend-01-Template/blob/master/week02/StringLiteral.md)
 ```
 "(^(\r\n\u2028\u2029\\)|\u2028|\u2029|\\|\\['"\bfnrtv] | [^'"\bfnrtvdxu\r\n\u2028\u2029] | [xu][0-9] | x?[0-9a-fA-F] | u[0-9]{4}|\\(\r\n|[\r\n\u2028\u2029]))*")|'([^'\r\n\u2028\u2029\\]|\u2028|\u2029|\\((['"\bfnrtv]|[^'"\bfnrtvdxu\r\n\u2028\u2029])|0(?!d)|x[0-9a-fA-F][0-9a-fA-F]|(u[0-9a-fA-F]{4}|u{(0[0-9a-fA-F]{5}|10[0-9a-fA-F]{4}|[0-9a-fA-F]{1,4})}))|\\(\r\n|[\r\n\u2028\u2029]))*') 
 ```
-[第三题的解答过程](https://github.com/apacheao/Frontend-01-Template/blob/master/week02/StringLiteral.md)
 
 **二周总结**：
 [week-02总结](https://github.com/apacheao/blog/issues/8)
