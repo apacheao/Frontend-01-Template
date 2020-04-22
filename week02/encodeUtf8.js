@@ -23,5 +23,5 @@ function decodeUtf8(bytes) {
     return decodeURIComponent(encoded);
 }
 
-console.log(encodeUtf8('我是谁')); // [230, 136, 145, 230, 152, 175, 232, 176, 129];
+console.log(encodeUtf8('我是谁')); // [230, 136, 145, 230, 152, 175, 232, 176, 129]
 console.log(decodeUtf8([230, 136, 145, 230, 152, 175, 232, 176, 129])); // 我是谁
