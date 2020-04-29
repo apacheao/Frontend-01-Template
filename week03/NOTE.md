@@ -7,8 +7,8 @@
 (3) JavaScript有多少种内部类型和内部方法
 ```
 
-[解1](https://github.com/apacheao/Frontend-01-Template/blob/master/week03/convertStrToNum.js)
+1.[解1](https://github.com/apacheao/Frontend-01-Template/blob/master/week03/convertStrToNum.js)
 
-[解2](https://github.com/apacheao/Frontend-01-Template/blob/master/week03/convertNumberToString.js)
+2.[解2](https://github.com/apacheao/Frontend-01-Template/blob/master/week03/convertNumberToString.js)
 
-[解3](https://github.com/apacheao/blog/issues/10)
+3.[解3](https://github.com/apacheao/blog/issues/10)
