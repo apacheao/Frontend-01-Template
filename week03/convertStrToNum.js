@@ -1,7 +1,7 @@
 // 获取码点
 function getCodePoint(char) {
   if (/\d/.test(char)) return char.codePonitAt(0) - '0'.codePointAt(0);
-  if (/[a-fA-F]/.test(char)) return (char.toUpperCase()).codePonitAt(0) - 'a'.codePointAt(0) + 10;
+  if (/[a-fA-F]/.test(char)) return (char.toLowerCase()).codePonitAt(0) - 'a'.codePointAt(0) + 10;
   throw Error('should input legal string');
 }
 
