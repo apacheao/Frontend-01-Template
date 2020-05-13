@@ -1,1 +1,1 @@
-[week-05作业](https://github.com/apacheao/blog/issues/8)
+[week-05作业](https://github.com/apacheao/Frontend-01-Template/tree/master/week05/toy-browser)
