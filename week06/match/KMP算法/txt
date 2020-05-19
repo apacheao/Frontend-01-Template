@@ -1,0 +1,26 @@
+string: abcbabcbbbaacbb
+
+pattern: babcbba
+
+
+prefix  pattern
+     0  b
+     0  ba
+     1  bab
+     0  babc
+     1  babcb
+     1  babcbb
+     2  babcbba
+
+  if (pattern[i] === pattern[len]) {
+       len++;
+       prefixTable[i] = len;
+       i++;
+     } else {
+       if (len > 0) {
+         len = prefixTable[len - 1]
+       } else {
+         prefixTable[i] = len;
+         i++
+       }
+     }
