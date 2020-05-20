@@ -1,10 +1,50 @@
 let currentToken = null;
 let currentAttribute = null;
 
+//将html节点塞进栈中
+let stack = [{type: "document", children: []}];
+
 // 创建好 token 后提交
 function emit(token) {
-  if (token.type !== "text") //过滤 text 类型
-    console.log(token);
+  //处理除 text 类型之外的节点
+  if (token.type !== "text") {
+    //获取栈顶 由于栈先进后出的特点 因此栈顶为最后一个元素
+    let top = stack[stack.length - 1];
+
+    if (token.type === "startTag") {
+      let element = {
+        type: "element",
+        children: [],
+        attributes: [],
+      };
+      element.tagName = token.tagName;
+      for (let p in token) {
+        if (p !== "type" && p !== "tagName") {
+          element.attributes.push({
+            name: p,
+            value: token[p]
+          })
+        }
+      }
+
+      top.children.push(element);
+      element.parent = top;
+
+      if (!token.isSelfClosing) {
+        stack.push(element);
+      }
+
+    } else if (token.type === "endTagOpen") {
+      if (top.tagName !== token.tagName) {
+        throw new Error("Tag start end doesn't match")
+      } else {
+        stack.pop()
+      }
+    }
+
+    console.log(stack)
+    
+  }
 }
 
 const EOF = Symbol("EOF"); //End Of File
