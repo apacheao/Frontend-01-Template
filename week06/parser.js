@@ -62,21 +62,18 @@ function endTagOpen(c) {
 function tagName(c) {
   if (c.match(/^[a-zA-Z]$/)) {
     currentToken.tagName += c.toLowerCase();
-    return tagName(c)
+    return tagName
   } else if (c.match(/^[\t\f\n ]$/)) {
     return beforeAttributeName
   } else if (c === "/") {
-    return selfCloseTag
+    return selfClosingStartTag
   } else if (c === '>') {
     emit(currentToken);
     return data
   } else if (c === EOF) {
-    emit({
-      type: "EOF"
-    });
-    return;
+    emit(EOF);
   } else {
-    return tagName(c)
+    currentToken.tagName += c;
   }
 }
 
