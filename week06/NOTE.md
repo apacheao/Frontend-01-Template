@@ -4,4 +4,4 @@
 
 [DOM树构建](https://github.com/apacheao/Frontend-01-Template/blob/master/week06/parser.js)
 
-[本周学习总结](https://github.com/apacheao/blog/issues/13)
+[学习总结](https://github.com/apacheao/blog/issues/13)
