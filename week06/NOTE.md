@@ -2,4 +2,6 @@
 
 [使用KMP算法草稿](https://github.com/apacheao/Frontend-01-Template/blob/master/week06/match/KMP%E7%AE%97%E6%B3%95/txt)
 
-[DOM 树构建](https://github.com/apacheao/Frontend-01-Template/blob/master/week06/parser.js)
+[DOM树构建](https://github.com/apacheao/Frontend-01-Template/blob/master/week06/parser.js)
+
+[本周学习总结](https://github.com/apacheao/blog/issues/13)
