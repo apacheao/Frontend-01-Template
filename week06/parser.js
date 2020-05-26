@@ -1,276 +1,415 @@
+const css = require('css');
 let currentToken = null;
 let currentAttribute = null;
-
-//将html节点塞进栈中
-let stack = [{type: "document", children: []}];
-
-// 文本节点
 let currentTextNode = null;
 
-// 创建好 token 后提交
-function emit(token) {
-    // 获取栈顶元素 由于栈先进后出的特点 因此栈顶元素为栈里最后一个元素
-    let top = stack[stack.length - 1];
+let stack = [{type: "document", children: []}];
 
-    if (token.type !== "text") { //处理除 text 类型之外的节点
-        if (token.type === "startTag") {
-            let element = {
-                type: "element",
-                children: [],
-                attributes: []
-            };
-            element.tagName = token.tagName;
+// 收集 CSS 规则
+let rules = [];
 
-            for (let p in token) {
-                if (p !== "type" && p !== "tagName") {
-                    element.attributes.push({
-                        name: p,
-                        value: token[p]
-                    })
-                }
-            }
-
-            top.children.push(element);
-            element.parent = top;
-            stack.push(element);
-
-        } else if (token.type === "selfCloseTag") {
-            return;
-        } else if (token.type === "endTagOpen") {
-            if (top.tagName !== token.tagName) {
-                throw new Error("start tag not match end tag");
-            } else {
-                stack.pop()
-            }
-        }
-    } else if (token.type === "text") { //处理 text 类型节点
-        if (currentTextNode === null) {
-            currentTextNode = {
-                type: "text",
-                content: ""
-            };
-            top.children.push(currentTextNode);
-        }
-        currentTextNode.content += token.content
-    }
+function addCSSRules(text) {
+  const ast = css.parse(text);
+  rules.push(...ast.stylesheet.rules)
 }
 
-const EOF = Symbol("EOF"); //End Of File
+/**
+ * 匹配 带(# . tag) 三种 selector
+ * @param element
+ * @param selector
+ * @return {boolean}
+ */
+
+function match(element, selector) {
+  if (!selector || !element.attributes)
+    return false;
+
+  if (selector.charAt(0) === "#") {
+    const attr = element.attributes.filter(attr => attr.name === "id")[0];
+    if (attr && attr.value === selector.replace("#", ''))
+      return true
+  } else if (selector.charAt(0) === ".") {
+    const attr = element.attributes.filter(attr => attr.name === "class")[0];
+    if (attr) {
+      const attrClassArray = attr.value.split(' ');
+      for (let attrClass of attrClassArray) {
+        if (attrClass === selector.replace(".", '')) {
+          return true
+        }
+      }
+    }
+  } else {
+    if (element.tagName === selector) {
+      return true
+    }
+  }
+  return false
+}
+
+function computeCSS(element) {
+  const elements = stack.slice().reverse();
+
+  if (!element.computedStyle)
+    element.computedStyle = {};
+
+  for (let rule of rules) {
+    const selectorParts = rule.selectors[0].split(" ").reverse()
+
+    if (!match(element, selectorParts[0]))
+      continue;
+
+    let matched = false
+
+    let j = 1;
+
+    for (let i = 0; i < elements.length; i++) {
+      if (match(elements[i], selectorParts[j])) {
+        j++
+      }
+    }
+    if (j >= selectorParts.length) {
+      matched = true
+    }
+    if (matched) {
+      // 匹配成功后  给element增加selector specificity 四则[0, 0, 0, 0]
+      const sp = specificity(rule.selectors[0]);
+      const computedStyle = element.computedStyle;
+      for (let declaration of rule.declarations) {
+        if (!computedStyle[declaration.property]) {
+          computedStyle[declaration.property] = {}
+        }
+        if (!computedStyle[declaration.property].specificity) {
+          computedStyle[declaration.property].value = declaration.value;
+          computedStyle[declaration.property].specificity = sp
+          // 比较两个specificity
+        } else if (compare(computedStyle[declaration.property].specificity, sp) < 0) {
+          computedStyle[declaration.property].value = declaration.value;
+          computedStyle[declaration.property].specificity = sp
+        }
+      }
+    }
+  }
+}
+
+function compare(sp1, sp2) {
+  if (sp1[0] !== sp2[0]) {
+    return sp1[0] - sp2[0]
+  } else if (sp1[1] !== sp2[1]) {
+    return sp1[1] - sp2[1]
+  } else if (sp1[2] !== sp2[2]) {
+    return sp1[2] - sp2[2]
+  } else if (sp1[3] !== sp2[3]) {
+    return sp1[3] - sp2[3]
+  }
+}
+
+/**
+ *
+ * @param selectors
+ * @return {number[]}
+ */
+function specificity(selectors) {
+  const p = [0, 0, 0, 0]; // 四元数组 第一位表示行内样式(可以覆盖所有)，第二位表示带id, 第三位表示带class, 第四位表示带tagName
+  const selectorParts = selectors.split(" ");
+  for (let part of selectorParts) {
+    if (part.charAt(0) === "#") {
+      p[1] += 1
+    } else if (part.charAt(0) === ".") {
+      p[2] += 1
+    } else {
+      p[3] += 1
+    }
+  }
+  return p
+}
+
+function emit(token) {
+
+  let top = stack[stack.length - 1];
+
+  if (token.type === "startTag") {
+    let element = {
+      type: "element",
+      children: [],
+      attributes: []
+    }
+
+    element.tagName = token.tagName;
+
+    for (let p in token) {
+      if (p !== "type" && p !== "tagName") {
+        element.attributes.push({
+          name: p,
+          value: token[p]
+        })
+      }
+    }
+
+    computeCSS(element);
+
+    top.children.push(element);
+    element.parent = top;
+
+    if (!token.isSelfClosing)
+      stack.push(element);
+
+    currentTextNode = null
+    // console.log('push', element)
+  } else if (token.type === "endTag") {
+    if (top.tagName !== token.tagName) {
+      throw new Error("Tag start end doesn't match")
+    } else {
+      // console.log('pop', stack.pop())
+      /** 遇到 style 标签时，执行添加 CCS 规则的操作 */
+      if (top.tagName === "style") {
+        addCSSRules(top.children[0].content)
+      }
+      stack.pop()
+    }
+    currentTextNode = null
+  } else if (token.type === "text") {
+    if (currentTextNode === null) {
+      currentTextNode = {
+        type: "text",
+        content: ""
+      }
+      top.children.push(currentTextNode)
+    }
+    currentTextNode.content += token.content
+    // console.log(top.children)
+  }
+}
+
+const EOF = Symbol("EOF")
 
 function data(char) {
-    if (char === "<") {
-        return tagOpen
-    } else if (char === EOF) {
-        emit({
-            type: "EOF"
-        });
-        return;
-    } else {
-        currentToken = {
-            type: "text",
-            content: char
-        };
-        emit({
-            type: "text",
-            content: char
-        });
-        return data;
-    }
+  if (char === "<") {
+    return tagOpen
+  } else if (char === EOF) {
+    emit({
+      type: "EOF"
+    });
+    return
+  } else {
+    emit({
+      type: "text",
+      content: char
+    })
+    return data
+  }
 }
 
+
+// 1. 开始标签
+// 2. 结束标签
+// 3. 自封闭标签
 function tagOpen(char) {
-    if (char === "/") {
-        return endTagOpen
-    } else if (char.match(/^[a-zA-Z]$/)) {
-        currentToken = {
-            type: "startTag",
-            tagName: ""
-        };
-        return tagName(char)
-    } else {
-        return;
+  if (char === "/") { // 结束标签
+    return endTagOpen
+  } else if (char.match(/^[a-zA-Z]$/)) { // 开始标签
+    currentToken = {
+      type: "startTag",
+      tagName: ""
     }
+    return tagName(char)
+  } else {
+    // return data
+  }
 }
+
 
 function endTagOpen(char) {
-    if (char.match(/^[a-zA-Z]$/)) {
-        currentToken = {
-            type: "endTagOpen",
-            tagName: ""
-        };
-        return tagName(char)
-    } else {
-        return;
+  if (char.match(/^[a-zA-Z]$/)) {
+    currentToken = {
+      type: "endTag",
+      tagName: ""
     }
+    return tagName(char)
+  } else if (char === ">") {
+    // return data
+  } else if (char === EOF) {
+    // return data
+  }
 }
+
 
 function tagName(char) {
-    if (char.match(/^[\t\n\f ]$/)) {
-        return beforeAttributeName(char)
-    } else if (char === "/") {
-        return selfCloseStartTag
-    } else if (char === ">") {
-        emit(currentToken);
-        return data
-    } else if (char.match(/^[a-zA-Z]$/)) {
-        currentToken.tagName += char.toLowerCase()
-        return tagName
-    } else {
-        return tagName
-    }
+  if (char.match(/^[\t\n\f ]$/)) {
+    return beforeAttributeName(char)
+  } else if (char === "/") {
+    return selfClosingStartTag
+  } else if (char.match(/^[a-zA-Z]$/)) {
+    currentToken.tagName += char.toLowerCase()
+    return tagName
+  } else if (char === ">") {
+    emit(currentToken);
+    return data
+  } else {
+    return tagName
+  }
 }
+
 
 function beforeAttributeName(char) {
-    if (char.match(/^[\t\n\f ]$/)) {
-        return beforeAttributeName;
-    } else if (char === "/" || char === ">" || char === EOF) {
-        return afterAttributeName(char);
-    } else if (char === "=") {
-        return
-    } else {
-        currentAttribute = {
-            name: "",
-            value: ""
-        };
-        return attributeName(char)
+  if (char.match(/^[\t\n\f ]$/)) {
+    return beforeAttributeName
+  } else if (char === ">" || char === "/" || char === EOF) {
+    return afterAttributeName(char)
+  } else if (char === "=") {
+    return
+  } else {
+    currentAttribute = {
+      name: "",
+      value: ""
     }
-}
-
-function attributeName(char) {
-    if (char.match(/^[\t\n\f ]$/) || char === "/" || char === ">" || char === EOF) {
-        return afterAttributeName(char)
-    } else if (char === "=") {
-        return beforeAttributeValue
-    } else if (char === "\u0000") {
-        return;
-    } else if (char === "\"" || char === "\'" || char === "<") {
-        return attributeName
-    } else {
-        currentAttribute.name += char;
-        return attributeName
-    }
+    return attributeName(char)
+  }
 }
 
 function afterAttributeName(char) {
-    if (char.match(/^[\r\n\f ]$/)) {
-        return;
-    } else if (char === "/") {
-        return selfCloseStartTag
-    } else if (char == "=") {
-        return beforeAttributeValue
-    } else if (char === ">") {
-        currentToken[currentAttribute.name] = currentAttribute.value
-        emit(currentToken);
-        return data
-    } else {
-        currentAttribute = {
-            name: "",
-            value: ""
-        };
-        return attributeName(char)
+  if (char === "/") {
+    return selfClosingStartTag
+  } else if (char.match(/^[\t\n\f ]$/)) {
+    return afterAttributeName
+  } else if (char === "=") {
+    return beforeAttributeValue
+  } else if (char === ">") {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    emit(currentToken)
+    return data
+  } else if (char === EOF) {
+    return
+  } else {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    currentAttribute = {
+      name: "",
+      value: ""
     }
+    return attributeName(char)
+  }
+}
+
+function attributeName(char) {
+  if (char.match(/^[\t\n\f ]$/) || char === "/" || char === ">" || char === EOF) {
+    return afterAttributeName(char)
+  } else if (char === "=") {
+    return beforeAttributeValue
+  } else if (char === "\u0000") {
+    // return data
+  } else if (char === "\"" || char === "\'" || char === "<") {
+    return attributeName
+  } else {
+    currentAttribute.name += char
+    return attributeName
+  }
 }
 
 function beforeAttributeValue(char) {
-    if (char.match(/^[\r\n\f ]$/)) {
-        return;
-    } else if (char === "\"") {
-        return doubleQuotedAttributeValue
-    } else if (char === "\'") {
-        return singleQuotedAttributeValue
-    } else if (char === ">") {
-        emit(currentToken)
-    } else {
-        return unQuotedAttributeValue(char)
-    }
+  if (char.match(/^[\t\n\f ]$/) || char === "/" || char === ">" || char === EOF) {
+    return beforeAttributeValue
+  } else if (char === "\"") {
+    return doubleQuotedAttributeValue
+  } else if (char === "\'") {
+    return singleQuotedAttributeValue
+  } else if (char === ">") {
+    emit(currentToken)
+    // return data
+  } else {
+    return UnquotedAttributeValue(char)
+  }
 }
 
 function doubleQuotedAttributeValue(char) {
-    if (char === "\"") {
-        currentToken[currentAttribute.name] = currentAttribute.value
-        return quotedAfterAttributeValue
-    } else if (char === "\u0000") {
-        // return data
-    } else if (char === EOF) {
-        // return data
-    } else {
-        currentAttribute.value += char;
-        return doubleQuotedAttributeValue
-    }
+  if (char === "\"") {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    return afterQuotedAttributeValue
+  } else if (char === "\u0000") {
+    // return data
+  } else if (char === EOF) {
+    // return data
+  } else {
+    currentAttribute.value += char
+    return doubleQuotedAttributeValue
+  }
 }
 
 function singleQuotedAttributeValue(char) {
-    if (char === "\'") {
-        currentToken[currentAttribute.name] = currentAttribute.value
-        return quotedAfterAttributeValue
-    } else if (char === "\u0000") {
-        // return data
-    } else if (char === EOF) {
-        // return data
-    } else {
-        currentAttribute.value += char;
-        return singleQuotedAttributeValue
-    }
+  if (char === "\'") {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    return afterQuotedAttributeValue
+  } else if (char === "\u0000") {
+    // return data
+  } else if (char === EOF) {
+    // return data
+  } else {
+    currentAttribute.value += char
+    return singleQuotedAttributeValue
+  }
 }
 
-function unQuotedAttributeValue(char) {
-    if (char.match(/^[\r\n\f ]$/)) {
-        currentToken[currentAttribute.name] = currentAttribute.value
-        return beforeAttributeName
-    } else if (char === ">") {
-        currentToken[currentAttribute.name] = currentAttribute.value
-        emit(currentToken);
-        return data
-    } else if (char === "/") {
-        currentToken[currentAttribute.name] = currentAttribute.value
-        return selfCloseStartTag
-    } else if (char === "\u0000") {
-        // return data
-    } else if (char === "\"" || char === "\'" || char === "<" || char === "=" || char === "`") {
-        // return data
-    } else if (char === EOF) {
-        // return data
-    } else {
-        currentAttribute.value += char;
-        return unQuotedAttributeValue
-    }
+function afterQuotedAttributeValue(char) {
+  if (char.match(/^[\t\n\f ]$/)) {
+    return beforeAttributeName
+  } else if (char === "/") {
+    return selfClosingStartTag
+  } else if (char === ">") {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    emit(currentToken)
+    return data
+  } else if (char === EOF) {
+    // return data
+  } else {
+    // return data
+  }
 }
 
-function quotedAfterAttributeValue(char) {
-    if (char.match(/^[\r\n\f ]$/)) {
-        return beforeAttributeName
-    } else if (char === "/") {
-        return selfCloseStartTag
-    } else if (char === ">") {
-        emit(currentToken);
-        return data
-    } else if (char === EOF) {
-        // return data
-    } else {
-        // return data
-    }
+function UnquotedAttributeValue(char) {
+  if (char.match(/^[\t\n\f ]$/)) {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    // emit(currentToken)
+    return beforeAttributeName
+  } else if (char === "/") {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    // emit(currentToken)
+    return selfClosingStartTag
+  } else if (char === ">") {
+    currentToken[currentAttribute.name] = currentAttribute.value
+    emit(currentToken)
+    return data
+  } else if (char === "\u0000") {
+    // return data
+  } else if (char === "\"" || char === "\'" || char === "<" || char === "=" || char === "`") {
+    // return data
+  } else if (char === EOF) {
+    // return data
+  } else {
+    currentAttribute.value += char
+    return UnquotedAttributeValue
+  }
 }
 
-function selfCloseStartTag(char) {
-    if (char === ">") {
-        currentToken.isSelfClosing = true;
-        currentToken.type = "selfCloseTag";
-        emit(currentToken);
-        return data;
-    } else {
-        return;
-    }
+
+function selfClosingStartTag(char) {
+  if (char === ">" || char === "/") {
+    currentToken.isSelfClosing = true
+    emit(currentToken)
+    return data
+  } else if (char === "EOF") {
+    // return data
+  } else {
+    // return data
+  }
 }
 
-// init FSM(有限状态机)
 module.exports.parserHTML = function parserHTML(html) {
 
-    let state = data;
+  let state = data
 
-    for (let c of html) {
-        state = state(c)
-        // console.log(state)
-    }
-    state = state(EOF);
-    console.log(stack[0]);
-};
+  for (let char of html) {
+    state = state(char)
+  }
+
+  state = state(EOF);
+
+  return stack[0]
+}
