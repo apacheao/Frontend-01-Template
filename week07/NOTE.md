@@ -1,6 +1,6 @@
 
 
-通过 Toy Browser 可以从底层了解到：
+通过 Toy Browser 可以知道浏览器底层工作原理（以client send requst server 为例）：
 1. 从client端send request后，server端成功接收后并作出向 client 发送一段HTML字符串
 2. client 解析 server 发送过来的HTML
     -client 利用状态机将 HTML 部分解析成 DOM树（[解析规则](https://html.spec.whatwg.org/multipage/parsing.html#data-state)）
