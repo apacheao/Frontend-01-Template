@@ -6,13 +6,13 @@
     - client 利用状态机将 HTML 部分解析成 DOM树（[解析规则](https://html.spec.whatwg.org/multipage/parsing.html#data-state)）
     - client 将 CSS 部分解析成 CSSOM
 3. computed CSS
-    -收集rules
-    -match selector & rules
-    -将 mtached 后的 declerations 添加进element 
+    - 收集rules
+    - match selector & rules
+    - 将 mtached 后的 declerations 添加进element 
 4. layout
-    -normal flow
-    -flex box
-    -grids
+    - normal flow
+    - flex box
+    - grids
 5. render
 
 第七周作业：
