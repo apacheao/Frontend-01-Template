@@ -1,4 +1,6 @@
 const css = require('css');
+const {layout} = require("./layout");
+
 let currentToken = null;
 let currentAttribute = null;
 let currentTextNode = null;
@@ -58,7 +60,7 @@ function computeCSS(element) {
     if (!match(element, selectorParts[0]))
       continue;
 
-    let matched = false
+    let matched = false;
 
     let j = 1;
 
@@ -132,7 +134,7 @@ function emit(token) {
       type: "element",
       children: [],
       attributes: []
-    }
+    };
 
     element.tagName = token.tagName;
 
@@ -159,11 +161,11 @@ function emit(token) {
     if (top.tagName !== token.tagName) {
       throw new Error("Tag start end doesn't match")
     } else {
-      // console.log('pop', stack.pop())
       /** 遇到 style 标签时，执行添加 CCS 规则的操作 */
       if (top.tagName === "style") {
         addCSSRules(top.children[0].content)
       }
+      layout(top);
       stack.pop()
     }
     currentTextNode = null
@@ -403,7 +405,7 @@ function selfClosingStartTag(char) {
 
 module.exports.parserHTML = function parserHTML(html) {
 
-  let state = data
+  let state = data;
 
   for (let char of html) {
     state = state(char)
