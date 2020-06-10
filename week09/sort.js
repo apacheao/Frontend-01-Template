@@ -1,25 +1,3 @@
-const properties = [
-  "all",
-  "bufferedRendering",
-  "colorScheme",
-  "contain", //https://developer.mozilla.org/en-US/docs/Web/CSS/contain
-
-  "counterIncrement",
-  "counterReset",
-  "marker",
-  
-  "page",
-  "pageBreakAfter",
-  "pageBreakBefore",
-  "pageBreakInside",
-
-  "resize",
-  "rowGap",
-  "speak",
-  "widows",
-  "writingMode",
-];
-
 //布局(包含四代布局: Normal flow / Flex / Grid / Houdini)
 const layoutTypeProperties = [
   tables = [
@@ -98,6 +76,9 @@ const layoutTypeProperties = [
     "gridTemplateColumns",
     "gridTemplateRows",
   ],
+   "counterIncrement",
+   "counterReset",
+   "marker",
   Houdini = []
 ];
 
@@ -209,6 +190,9 @@ const boxTypeProperties = [
   "shapeMargin",
   "shapeOutside",
   "shapeRendering",
+  
+  "resize",
+  "rowGap",
 ];
 
 //动画
@@ -277,6 +261,9 @@ const backgroundTypeProperties = [
 
   "unicodeBidi",
   "unicodeRange",
+  
+  "bufferedRendering",
+  "contain", //https://developer.mozilla.org/en-US/docs/Web/CSS/contain
 ];
 
 //字体
@@ -300,6 +287,8 @@ const fontTypeProperties = [
   "fontVariationSettings",
   "fontWeight",
 
+   "colorScheme",
+  
   "src",
 ];
 
@@ -346,6 +335,8 @@ const textTypeProperties = [
 
   "quotes",
   "tabSize",
+  
+   "writingMode",
 ];
 
 //svg
@@ -393,6 +384,7 @@ const svgTypeProperties = [
 
 //others
 const othersTypeProperties = [
+  "all",
   "touchAction",
 
   "userSelect",
@@ -436,4 +428,12 @@ const othersTypeProperties = [
   "scrollSnapAlign",
   "scrollSnapStop",
   "scrollSnapType",
+  
+  "page",
+  "pageBreakAfter",
+  "pageBreakBefore",
+  "pageBreakInside",
+  
+  "speak",
+  "widows",
 ];
