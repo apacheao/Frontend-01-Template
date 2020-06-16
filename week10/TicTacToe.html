@@ -1,0 +1,116 @@
+<style>
+  #board {
+
+  }
+
+  .cell {
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #00C0E0;
+    border: 1px solid #ccc;
+
+    text-align: center;
+    font-size: 50px;
+    line-height: 100px;
+  }
+</style>
+
+<div id="board"></div>
+
+<script>
+let data = [
+  [0, 1, 0],
+  [0, 0, 2],
+  [0, 0, 0]
+];
+
+let color = 2;
+
+function show() {
+  let board = document.getElementById("board");
+  board.innerHTML = " ";
+  for (let y = 0; y < data.length; y++) {
+    for (let x = 0; x < data[y].length; x++) {
+      let cell = document.createElement("div");
+      cell.classList.add('cell');
+      cell.innerText = data[y][x] == 1 ? 'X' : data[y][x] == 2 ? 'O' : "";
+      cell.addEventListener("click", () => {
+        move(x, y)
+      });
+      board.appendChild(cell);
+    }
+    board.appendChild(document.createElement("br"))
+  }
+}
+
+//绑定过多的事件不会影响性能，触发过多才会影响
+function move(x, y) {
+  //防止重复点击
+  if (data[y][x] != 0)
+    return;
+  color = 3 - color;
+  data[y][x] = color;
+  if (check(data, color)) {
+    console.log('win');
+  }
+  show();
+}
+
+function check(data, color) {
+  //三横，三纵，两条对角线
+  for (let y = 0; y < 3; y++) {
+    let win = true;
+    for (let x = 0; x < 3; x++) {
+      if (data[y][x] !== color) {
+        win = false;
+        break;
+      }
+    }
+    if (win)
+      return true
+  }
+
+  for (let y = 0; y < 3; y++) {
+    let win = true;
+    for (let x = 0; x < 3; x++) {
+      if (data[x][y] !== color) {
+        win = false;
+        break;
+      }
+    }
+    if (win)
+      return true
+  }
+
+  for (let y = 0; y < 3; y++) {
+    let win = true;
+    for (let x = 0; x < 3; x++) {
+      if (data[x][x] !== color) {
+        win = false;
+        break;
+      }
+    }
+    if (win)
+      return true
+  }
+
+  for (let y = 0; y < 3; y++) {
+    let win = true;
+    for (let x = 0; x < 3; x++) {
+      if (data[x][2 - x] !== color) {
+        win = false;
+        break;
+      }
+    }
+    if (win)
+      return true
+  }
+
+  return false
+}
+
+show();
+
+</script>
