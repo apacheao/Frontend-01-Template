@@ -1,0 +1,37 @@
+<div id="a">
+    <span>1</span>
+    <p>2</p>
+    <a>3</a>
+    <div>4</div>
+</div>
+
+<script>
+    //solution 1 由于触发多次重排，因此在海量节点内比较耗内存
+    let element = document.getElementById("a");
+    void function reverseChildren(element) {
+        let children = element.childNodes;
+        let length = children.length
+        while (length--) {
+            element.appendChild(children[length])
+        }
+    }(element)
+</script>
+
+<script>
+    //solution 2(use Range api) 推荐场景 海量节点/精确找到dom
+    let element = document.getElementById("a");
+
+    void function reverseChildren(element) {
+        let range = new Range()
+        //选中
+        range.selectNodeContents(element);
+
+        //将content摘下来
+        let fragment = range.extractContents();
+        let length = fragment.childNodes.length;
+        while (length--) {
+            fragment.appendChild(fragment.childNodes[length])
+        }
+        element.appendChild(fragment)
+    }(element)
+</script>
