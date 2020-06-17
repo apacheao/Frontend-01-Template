@@ -47,7 +47,7 @@ let WindowAttributes = [
 names = filterOut(names, WindowAttributes);
 
 // HTML 标准中的接口
-// https://html.spec.whatwg.org/
+// https://html.spec.whatwg.org/#common-dom-interfaces
 // 搜索 interface
 let interfaces = [
   "ApplicationCache", "AudioTrack", "AudioTrackList", "BarProp", "BeforeUnloadEvent",
