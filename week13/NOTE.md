@@ -1,1 +1,4 @@
-# 每周总结可以写在这里
+# 本周作业
+
+- [reactivity](./proxy.html)
+- [range](./range.html)
